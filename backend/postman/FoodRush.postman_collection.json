@@ -1,0 +1,161 @@
+{
+  "info": {
+    "name": "FoodRush API",
+    "description": "FoodRush food delivery backend (Spring Boot). Set `baseUrl` and `token` in collection variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"customer\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"customer@foodrush.ng\",\n  \"password\": \"Password123!\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "List restaurants",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/restaurants?cuisine=Nigerian&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "restaurants"], "query": [
+              { "key": "cuisine", "value": "Nigerian" },
+              { "key": "limit", "value": "10" }
+            ] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get restaurant + menu",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/restaurants/1", "host": ["{{baseUrl}}"], "path": ["api", "restaurants", "1"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api", "orders"] },
+            "body": { "mode": "raw", "raw": "{\n  \"restaurantId\": 1,\n  \"deliveryAddress\": \"12 Admiralty Way, Lekki\",\n  \"deliveryDistanceKm\": 3,\n  \"items\": [{ \"menuItemId\": 1, \"quantity\": 2 }],\n  \"couponCode\": \"WELCOME10\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "List my orders",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api", "orders"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get order",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/orders/1", "host": ["{{baseUrl}}"], "path": ["api", "orders", "1"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update order status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/orders/1/status", "host": ["{{baseUrl}}"], "path": ["api", "orders", "1", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"RESTAURANT_ACCEPTED\"\n}" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Initialize payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/initialize", "host": ["{{baseUrl}}"], "path": ["api", "payments", "initialize"] },
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": 1\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/verify", "host": ["{{baseUrl}}"], "path": ["api", "payments", "verify"] },
+            "body": { "mode": "raw", "raw": "{\n  \"reference\": \"FR-000000-000000\"\n}" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Analytics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/admin/analytics", "host": ["{{baseUrl}}"], "path": ["api", "admin", "analytics"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

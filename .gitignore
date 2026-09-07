@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+.env
+.env.*
+!.env.example
+backend/target/
+backend/*.log
+backend/*.out
+backend/*_log.txt
+backend/mvn_*.txt

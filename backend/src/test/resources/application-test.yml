@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:foodrush;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+app:
+  jwt:
+    secret: test-secret-that-is-long-enough-for-hs256
+    expiration-ms: 3600000
+  cors:
+    allowed-origins: http://localhost:5173
+  paystack:
+    secret-key:
+    simulation-enabled: false

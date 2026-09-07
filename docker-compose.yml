@@ -1,0 +1,77 @@
+# FoodRush — full stack with load balancing.
+#
+#   Nginx (load balancer) ──► foodrush-web-1 ─┐
+#                           └► foodrush-web-2 ─┼─► PostgreSQL (shared)
+#                                              └─► Redis (pub/sub + rate limit)
+#
+# Real-time events fan out across BOTH web replicas via Redis pub/sub, so
+# horizontal scaling does not break SSE/live updates.
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Two identical backend replicas to demonstrate horizontal scaling.
+  foodrush-web-1: &web
+    build: .
+    environment: &web_env
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/app_db
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/health/ready | grep -q 'ready'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  foodrush-web-2:
+    <<: *web
+
+  # Reverse proxy + load balancer in front of both replicas.
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      foodrush-web-1:
+        condition: service_healthy
+      foodrush-web-2:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:

@@ -1,0 +1,6 @@
+target/
+*.log
+*.out
+mvn_*.txt
+build_log.txt
+test_log.txt
